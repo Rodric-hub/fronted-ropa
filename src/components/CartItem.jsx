@@ -17,7 +17,7 @@ function CartItem({ item, removeFromCart }) {
                     <Card.Body>
                         <Card.Title>{item.name}</Card.Title>
                         <Card.Text className="text-muted mb-1">
-                            Precio: S/. {Number(item.price).toFixed(2)}
+                            Precio: S/. {Number(item.precio).toFixed(2)}
                         </Card.Text>
                         <Card.Text className="text-muted mb-1">
                             Cantidad: {item.quantity}

@@ -23,11 +23,14 @@ function Catalog() {
             });
     }, []);
 
-    const handleFilter = (e) => {
+     const handleFilter = (e) => {
         const value = e.target.value.toLowerCase();
         setFilter(value);
         setFiltered(
-            products.filter((p) => p.nombre.toLowerCase().includes(value))
+            products.filter(p =>
+                p.title.toLowerCase().includes(value) ||
+                p.category.toLowerCase().includes(value)
+            )
         );
     };
 

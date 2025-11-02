@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as cartService from '../Services/Api';
 import { AuthContext } from './AuthContext';
@@ -10,25 +10,26 @@ export const CartProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
-
+    // ✅ Normaliza siempre el ID del usuario
     const getCurrentUser = () => {
-        if (user) return user;
         try {
-            const stored = localStorage.getItem('user');
-            return stored ? JSON.parse(stored) : null;
+            const fromContext = user || JSON.parse(localStorage.getItem('user'));
+            if (!fromContext) return null;
+
+            const id = fromContext.id ?? fromContext.user_id ?? null;
+            return id ? { ...fromContext, id } : null;
         } catch {
             return null;
         }
     };
 
-
+    // 🔁 Cargar carrito del usuario logueado
     useEffect(() => {
         const fetchCart = async () => {
             try {
                 const currentUser = getCurrentUser();
                 if (currentUser?.id) {
                     const res = await cartService.getCart(currentUser.id);
-
                     setCart(res.data || []);
                 } else {
                     setCart([]);
@@ -38,39 +39,41 @@ export const CartProvider = ({ children }) => {
             }
         };
         fetchCart();
-
     }, [user]);
 
-
+    // 🧩 Normalizar producto antes de añadir
     const normalizeProductForCart = (product) => {
-
         const id = product.id ?? product.product_id ?? product.productId;
         const name = product.name ?? product.nombre ?? product.title ?? 'Producto';
         const image = product.image ?? product.image_url ?? product.imagen ?? null;
         const precio = Number(product.price ?? product.precio ?? 0);
-
         return { id, name, image, precio };
     };
 
+    // 🛒 Agregar producto al carrito
     const addItem = async (product, quantity = 1) => {
-
         const currentUser = getCurrentUser();
-        if (!currentUser?.id) {
-
+        if (!(currentUser?.id)) {
             alert('Debes iniciar sesión para agregar productos al carrito.');
             navigate('/auth');
             return;
         }
 
         const normalized = normalizeProductForCart(product);
+        const userId = currentUser.id;
+
         try {
             try {
-                await cartService.addToCart(currentUser.id, normalized.id, quantity);
+                await cartService.addToCart(userId, normalized.id, quantity);
             } catch (err) {
-                console.warn('No se pudo guardar en el backend (o no configurado).', err);
+                console.warn('No se pudo guardar en el backend (modo local activo o sin conexión).', err);
             }
+
             setCart(prev => {
-                const existing = prev.find(i => (i.product_id ? i.product_id === normalized.id : i.id === normalized.id));
+                const existing = prev.find(i =>
+                    (i.product_id ? i.product_id === normalized.id : i.id === normalized.id)
+                );
+
                 if (existing) {
                     return prev.map(i =>
                         (i.product_id ? i.product_id === normalized.id : i.id === normalized.id)
@@ -78,25 +81,37 @@ export const CartProvider = ({ children }) => {
                             : i
                     );
                 }
-                return [...prev, { id: normalized.id, name: normalized.name, precio: normalized.precio, image: normalized.image, quantity }];
+
+                return [...prev, {
+                    id: normalized.id,
+                    name: normalized.name,
+                    precio: normalized.precio,
+                    image: normalized.image,
+                    quantity
+                }];
             });
         } catch (error) {
             console.error('Error al agregar al carrito:', error);
         }
     };
 
+    // 🔄 Actualizar cantidad
     const updateItem = async (productId, quantity) => {
         const currentUser = getCurrentUser();
-        if (!currentUser?.id) {
+        if (!(currentUser?.id)) {
             navigate('/auth');
             return;
         }
 
+        const userId = currentUser.id;
+
         try {
-            await cartService.updateQuantity(currentUser.id, productId, quantity);
+            await cartService.updateQuantity(userId, productId, quantity);
             setCart(prev =>
                 prev.map(i =>
-                    (i.product_id ? i.product_id === productId : i.id === productId) ? { ...i, quantity } : i
+                    (i.product_id ? i.product_id === productId : i.id === productId)
+                        ? { ...i, quantity }
+                        : i
                 )
             );
         } catch (error) {
@@ -104,30 +119,38 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    // Eliminar producto
     const removeItem = async (productId) => {
         const currentUser = getCurrentUser();
-        if (!currentUser?.id) {
+        if (!(currentUser?.id)) {
             navigate('/auth');
             return;
         }
 
+        const userId = currentUser.id;
+
         try {
-            await cartService.removeFromCart(currentUser.id, productId);
-            setCart(prev => prev.filter(i => (i.product_id ? i.product_id !== productId : i.id !== productId)));
+            await cartService.removeFromCart(userId, productId);
+            setCart(prev => prev.filter(i =>
+                (i.product_id ? i.product_id !== productId : i.id !== productId)
+            ));
         } catch (error) {
             console.error('Error al eliminar producto:', error);
         }
     };
 
+    // 🧹 Vaciar carrito
     const clear = async () => {
         const currentUser = getCurrentUser();
-        if (!currentUser?.id) {
+        if (!(currentUser?.id)) {
             navigate('/auth');
             return;
         }
 
+        const userId = currentUser.id;
+
         try {
-            await cartService.clearCart(currentUser.id);
+            await cartService.clearCart(userId);
             setCart([]);
         } catch (error) {
             console.error('Error al limpiar carrito:', error);
@@ -146,7 +169,6 @@ export const CartProvider = ({ children }) => {
         </CartContext.Provider>
     );
 };
-
 
 export const useCart = () => {
     const context = useContext(CartContext);

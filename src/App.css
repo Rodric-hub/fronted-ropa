@@ -1,15 +1,59 @@
+/* Fondo general */
 body {
-  background-color: #f8f9fa;
+  background-color: #adb1b8;
 }
 
+/* Encabezado principal */
 .App-header {
   text-align: center;
   padding: 4rem 0;
-  background: linear-gradient(90deg, #007bff, #6610f2);
+  background: linear-gradient(90deg, #372b41, #1a1425);
   color: white;
 }
 
+/* Animación al pasar el mouse sobre tarjetas */
 .card:hover {
   transform: scale(1.02);
   transition: all 0.3s ease;
 }
+
+/* --- Personalización de botones Bootstrap --- */
+
+/* Estilo para botones primary (antes azules) */
+.btn-primary {
+  background-color: #4b2e83 !important; /* Morado oscuro elegante */
+  border-color: #4b2e83 !important;
+}
+
+/* Hover para botones primary */
+.btn-primary:hover {
+  background-color: #3a2469 !important;
+  border-color: #3a2469 !important;
+}
+
+/* Estilo para botones dark (negros) */
+.btn-dark {
+  background-color: #1a1425 !important;
+  border-color: #1a1425 !important;
+}
+
+/* Hover para botones dark */
+.btn-dark:hover {
+  background-color: #372b41 !important;
+  border-color: #372b41 !important;
+}
+
+/* Opcional: botón personalizado para destacar */
+.btn-elegance {
+  background-color: #372b41;
+  color: white;
+  border: none;
+}
+
+.btn-elegance:hover {
+  background-color: #4b2e83;
+  color: #fff;
+}
+
+
+

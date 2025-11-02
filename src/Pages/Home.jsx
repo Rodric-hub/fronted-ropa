@@ -38,7 +38,7 @@ function Home() {
                     <Carousel.Caption className="bg-dark bg-opacity-50 rounded p-3">
                         <h3>Moda femenina</h3>
                         <p>Descubre los mejores looks de temporada</p>
-                        <Button as={Link} to="/catalog" variant="light">
+                        <Button as={Link} to="/catalog/mujeres" variant="light">
                             Ver productos
                         </Button>
                     </Carousel.Caption>
@@ -54,12 +54,11 @@ function Home() {
                     <Carousel.Caption className="bg-dark bg-opacity-50 rounded p-3">
                         <h3>Moda masculina</h3>
                         <p>Estilo y comodidad para cada ocasión</p>
-                        <Button as={Link} to="/catalog" variant="light">
+                        <Button as={Link} to="/catalog/hombres" variant="light">
                             Explorar
                         </Button>
                     </Carousel.Caption>
                 </Carousel.Item>
-
             </Carousel>
 
             {/* Sección de bienvenida */}

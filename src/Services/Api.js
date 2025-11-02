@@ -1,12 +1,10 @@
 import axios from 'axios';
 
-// Configuración base del cliente Axios
 const API = axios.create({
     baseURL: 'http://localhost:5000/api',
     headers: { 'Content-Type': 'application/json' },
 });
 
-// Interceptor para incluir el token en cada petición
 API.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -21,7 +19,9 @@ export const getProfile = () => API.get('/users/profile');
 
 export const getProducts = () => API.get('/products');
 
-
+// Crear orden
+export const createOrder = (user_id, items) =>
+  API.post('/orders', { user_id, items });
 
 // Obtener carrito de un usuario
 export const getCart = (userId) => API.get(`/cart/${userId}`);
