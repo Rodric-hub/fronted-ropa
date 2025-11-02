@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as cartService from '../Services/Api';
 import { AuthContext } from './AuthContext';
@@ -10,7 +10,6 @@ export const CartProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
-
     const getCurrentUser = () => {
         if (user) return user;
         try {
@@ -21,14 +20,12 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-
     useEffect(() => {
         const fetchCart = async () => {
             try {
                 const currentUser = getCurrentUser();
                 if (currentUser?.id) {
                     const res = await cartService.getCart(currentUser.id);
-
                     setCart(res.data || []);
                 } else {
                     setCart([]);
@@ -63,13 +60,17 @@ export const CartProvider = ({ children }) => {
         }
 
         const normalized = normalizeProductForCart(product);
+
         try {
             try {
                 await cartService.addToCart(currentUser.id, normalized.id, quantity);
             } catch (err) {
+
                 console.warn('No se pudo guardar en el backend (o no configurado).', err);
             }
+
             setCart(prev => {
+
                 const existing = prev.find(i => (i.product_id ? i.product_id === normalized.id : i.id === normalized.id));
                 if (existing) {
                     return prev.map(i =>
@@ -78,6 +79,7 @@ export const CartProvider = ({ children }) => {
                             : i
                     );
                 }
+
                 return [...prev, { id: normalized.id, name: normalized.name, precio: normalized.precio, image: normalized.image, quantity }];
             });
         } catch (error) {
@@ -146,7 +148,6 @@ export const CartProvider = ({ children }) => {
         </CartContext.Provider>
     );
 };
-
 
 export const useCart = () => {
     const context = useContext(CartContext);

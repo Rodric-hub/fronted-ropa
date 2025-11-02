@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Button, Alert } from 'react-bootstrap';
 import CartItem from '../Components/CartItem';
 import { useCart } from '../Context/CartContext';
 
 function Cart() {
-    const { cart, removeFromCart, clearCart, getCart } = useCart();
-    const [checkout, setCheckout] = useState(false);
+    const { cart, removeFromCart, clearCart } = useCart();
 
-    useEffect(() => {
-        getCart();
-    }, [getCart]);
+    const [checkout, setCheckout] = useState(false);
 
     const handleCheckout = () => {
         setCheckout(true);

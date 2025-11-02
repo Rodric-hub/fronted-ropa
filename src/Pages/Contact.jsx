@@ -18,7 +18,7 @@ function Contact() {
         <Container className="my-5" style={{ maxWidth: '600px' }}>
             <h2 className="mb-4 text-center">Contáctanos</h2>
 
-            {sent && <Alert variant="success">Mensaje enviado correctamente 💬</Alert>}
+            {sent && <Alert variant="success">Mensaje enviado correctamente </Alert>}
 
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
