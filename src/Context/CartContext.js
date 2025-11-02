@@ -10,12 +10,26 @@ export const CartProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
+
+    const getCurrentUser = () => {
+        if (user) return user;
+        try {
+            const stored = localStorage.getItem('user');
+            return stored ? JSON.parse(stored) : null;
+        } catch {
+            return null;
+        }
+    };
+
+
     useEffect(() => {
         const fetchCart = async () => {
             try {
-                if (user?.id) {
-                    const res = await cartService.getCart(user.id);
-                    setCart(res.data);
+                const currentUser = getCurrentUser();
+                if (currentUser?.id) {
+                    const res = await cartService.getCart(currentUser.id);
+
+                    setCart(res.data || []);
                 } else {
                     setCart([]);
                 }
@@ -24,27 +38,47 @@ export const CartProvider = ({ children }) => {
             }
         };
         fetchCart();
+
     }, [user]);
 
+
+    const normalizeProductForCart = (product) => {
+
+        const id = product.id ?? product.product_id ?? product.productId;
+        const name = product.name ?? product.nombre ?? product.title ?? 'Producto';
+        const image = product.image ?? product.image_url ?? product.imagen ?? null;
+        const precio = Number(product.price ?? product.precio ?? 0);
+
+        return { id, name, image, precio };
+    };
+
     const addItem = async (product, quantity = 1) => {
-        if (!user?.id) {
+
+        const currentUser = getCurrentUser();
+        if (!currentUser?.id) {
+
             alert('Debes iniciar sesión para agregar productos al carrito.');
-            navigate('/login');
+            navigate('/auth');
             return;
         }
 
+        const normalized = normalizeProductForCart(product);
         try {
-            await cartService.addToCart(user.id, product.id, quantity);
+            try {
+                await cartService.addToCart(currentUser.id, normalized.id, quantity);
+            } catch (err) {
+                console.warn('No se pudo guardar en el backend (o no configurado).', err);
+            }
             setCart(prev => {
-                const existing = prev.find(i => i.product_id === product.id);
+                const existing = prev.find(i => (i.product_id ? i.product_id === normalized.id : i.id === normalized.id));
                 if (existing) {
                     return prev.map(i =>
-                        i.product_id === product.id
-                            ? { ...i, quantity: i.quantity + quantity }
+                        (i.product_id ? i.product_id === normalized.id : i.id === normalized.id)
+                            ? { ...i, quantity: (i.quantity || 1) + quantity }
                             : i
                     );
                 }
-                return [...prev, { ...product, quantity }];
+                return [...prev, { id: normalized.id, name: normalized.name, precio: normalized.precio, image: normalized.image, quantity }];
             });
         } catch (error) {
             console.error('Error al agregar al carrito:', error);
@@ -52,16 +86,17 @@ export const CartProvider = ({ children }) => {
     };
 
     const updateItem = async (productId, quantity) => {
-        if (!user?.id) {
-            navigate('/login');
+        const currentUser = getCurrentUser();
+        if (!currentUser?.id) {
+            navigate('/auth');
             return;
         }
 
         try {
-            await cartService.updateQuantity(user.id, productId, quantity);
+            await cartService.updateQuantity(currentUser.id, productId, quantity);
             setCart(prev =>
                 prev.map(i =>
-                    i.product_id === productId ? { ...i, quantity } : i
+                    (i.product_id ? i.product_id === productId : i.id === productId) ? { ...i, quantity } : i
                 )
             );
         } catch (error) {
@@ -70,27 +105,29 @@ export const CartProvider = ({ children }) => {
     };
 
     const removeItem = async (productId) => {
-        if (!user?.id) {
-            navigate('/login');
+        const currentUser = getCurrentUser();
+        if (!currentUser?.id) {
+            navigate('/auth');
             return;
         }
 
         try {
-            await cartService.removeFromCart(user.id, productId);
-            setCart(prev => prev.filter(i => i.product_id !== productId));
+            await cartService.removeFromCart(currentUser.id, productId);
+            setCart(prev => prev.filter(i => (i.product_id ? i.product_id !== productId : i.id !== productId)));
         } catch (error) {
             console.error('Error al eliminar producto:', error);
         }
     };
 
     const clear = async () => {
-        if (!user?.id) {
-            navigate('/login');
+        const currentUser = getCurrentUser();
+        if (!currentUser?.id) {
+            navigate('/auth');
             return;
         }
 
         try {
-            await cartService.clearCart(user.id);
+            await cartService.clearCart(currentUser.id);
             setCart([]);
         } catch (error) {
             console.error('Error al limpiar carrito:', error);
@@ -109,6 +146,7 @@ export const CartProvider = ({ children }) => {
         </CartContext.Provider>
     );
 };
+
 
 export const useCart = () => {
     const context = useContext(CartContext);
