@@ -9,6 +9,7 @@ import { AuthContext } from '../Context/AuthContext';
 
 function Cart() {
     const { cart, removeFromCart, clearCart } = useCart();
+<<<<<<< HEAD
 
     // 🆕 acceder al usuario logeado
     const { user } = useContext(AuthContext);
@@ -23,6 +24,10 @@ function Cart() {
             alert('Debes iniciar sesión para realizar una compra.');
             return;
         }
+=======
+
+    const [checkout, setCheckout] = useState(false);
+>>>>>>> 8135cd58dc0f4b6dbc4753748b49ce196abca0ef
 
         if (cart.length === 0) {
             alert('Tu carrito está vacío.');

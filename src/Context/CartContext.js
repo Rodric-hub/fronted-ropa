@@ -10,7 +10,10 @@ export const CartProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
+<<<<<<< HEAD
     // ✅ Normaliza siempre el ID del usuario
+=======
+>>>>>>> 8135cd58dc0f4b6dbc4753748b49ce196abca0ef
     const getCurrentUser = () => {
         try {
             const fromContext = user || JSON.parse(localStorage.getItem('user'));
@@ -23,7 +26,10 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+<<<<<<< HEAD
     // 🔁 Cargar carrito del usuario logueado
+=======
+>>>>>>> 8135cd58dc0f4b6dbc4753748b49ce196abca0ef
     useEffect(() => {
         const fetchCart = async () => {
             try {
@@ -60,12 +66,16 @@ export const CartProvider = ({ children }) => {
         }
 
         const normalized = normalizeProductForCart(product);
+<<<<<<< HEAD
         const userId = currentUser.id;
+=======
+>>>>>>> 8135cd58dc0f4b6dbc4753748b49ce196abca0ef
 
         try {
             try {
                 await cartService.addToCart(userId, normalized.id, quantity);
             } catch (err) {
+<<<<<<< HEAD
                 console.warn('No se pudo guardar en el backend (modo local activo o sin conexión).', err);
             }
 
@@ -74,6 +84,15 @@ export const CartProvider = ({ children }) => {
                     (i.product_id ? i.product_id === normalized.id : i.id === normalized.id)
                 );
 
+=======
+
+                console.warn('No se pudo guardar en el backend (o no configurado).', err);
+            }
+
+            setCart(prev => {
+
+                const existing = prev.find(i => (i.product_id ? i.product_id === normalized.id : i.id === normalized.id));
+>>>>>>> 8135cd58dc0f4b6dbc4753748b49ce196abca0ef
                 if (existing) {
                     return prev.map(i =>
                         (i.product_id ? i.product_id === normalized.id : i.id === normalized.id)
@@ -82,6 +101,7 @@ export const CartProvider = ({ children }) => {
                     );
                 }
 
+<<<<<<< HEAD
                 return [...prev, {
                     id: normalized.id,
                     name: normalized.name,
@@ -89,6 +109,9 @@ export const CartProvider = ({ children }) => {
                     image: normalized.image,
                     quantity
                 }];
+=======
+                return [...prev, { id: normalized.id, name: normalized.name, precio: normalized.precio, image: normalized.image, quantity }];
+>>>>>>> 8135cd58dc0f4b6dbc4753748b49ce196abca0ef
             });
         } catch (error) {
             console.error('Error al agregar al carrito:', error);
